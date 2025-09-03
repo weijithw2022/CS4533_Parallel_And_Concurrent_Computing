@@ -25,5 +25,6 @@ int main(int argc, char* argv[]) {
 
 void *Hello(void* rank){
     long my_rank = (long) rank;
-    printf("Hello from thread %1d of %d\n", my_rank, thread_count);
+    printf("Hello from thread %ld of %d\n", my_rank, thread_count);
+    return NULL;
 }
