@@ -17,6 +17,7 @@ This is due to the way the threads are accessing and modifying the shared variab
 Solutions; 
 1. Use a flag to wait until the previous thread has finished updating the sum.
 2. Use mutex locks to ensure that only one thread can update the sum at a time.
+3. Using of thread sum 
 */
 
 /*
@@ -31,6 +32,20 @@ Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
 64         0.633920                         0.574159
 */
 
+/*
+Time without any Synchronization from BusyWait or Mutex Lock
+Threads    Time(seconds)
+1          3.602716
+2          1.850353
+4          0.965202
+8          0.609571
+16         0.597984
+32         0.573637
+64         0.591330
+
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -43,7 +58,13 @@ Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
 int thread_count;
 double sum = 0.0;
 // int flag = 0;
-pthread_mutex_t mutex;
+// pthread_mutex_t mutex;
+
+typedef struct{
+    long rank;
+    int thread_count;
+    double *thread_sums; 
+} threads_args_t;
 
 void *estimate_pi(void* rank);
 
@@ -55,19 +76,28 @@ int main(int argc, char* argv[]){
 
     long thread;
     pthread_t* thread_handles;
-    pthread_mutex_init(&mutex, NULL);
+    // pthread_mutex_init(&mutex, NULL);
 
     thread_count = strtol(argv[1], NULL, 10);
+    double *thread_sums = malloc(thread_count * sizeof(double));
 
     //start = clock();
 
     thread_handles = malloc(thread_count * sizeof(pthread_t));
-    for(thread = 0; thread < thread_count; thread++)
-        pthread_create(&thread_handles[thread], NULL, estimate_pi, (void*) thread);
+    threads_args_t *args = malloc(thread_count * sizeof(threads_args_t));
+
+    for(thread = 0; thread < thread_count; thread++){
+        args[thread].rank = thread;
+        args[thread].thread_count = thread_count;
+        args[thread].thread_sums = thread_sums;
+        pthread_create(&thread_handles[thread], NULL, estimate_pi, (void*) &args[thread]);
+    }
 
     for(thread = 0; thread < thread_count; thread++)
         pthread_join(thread_handles[thread], NULL);
-    
+
+    for(int t = 0; t < thread_count; t++)
+        sum += thread_sums[t];
 
     double pi = 4.0 * sum;
     printf("%f\n", pi);
@@ -80,12 +110,17 @@ int main(int argc, char* argv[]){
     double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
     printf("Wall time used: %f seconds\n", elapsed);
     free(thread_handles);
-    pthread_mutex_destroy(&mutex);
+    free(thread_sums);
+    free(args);
+    // pthread_mutex_destroy(&mutex);
     return 0;
 }
 
 void *estimate_pi(void* rank){
-    long my_rank = (long) rank;
+    threads_args_t* my_arg = (threads_args_t*) rank;
+    long my_rank = my_arg->rank;
+    int thread_count = my_arg->thread_count;
+    double *thread_sums = my_arg->thread_sums;
     double factor;
     long long i;
     long long my_n = NUM_ITER / thread_count;
@@ -107,9 +142,10 @@ void *estimate_pi(void* rank){
     // while(flag != my_rank); // Busy Wait
     // sum += my_sum;
     // flag = (flag + 1) % thread_count;
-    pthread_mutex_lock(&mutex);
-    sum += my_sum;
-    pthread_mutex_unlock(&mutex);
+    // pthread_mutex_lock(&mutex);
+    //sum += my_sum;
+    //pthread_mutex_unlock(&mutex);
+    thread_sums[my_rank] = my_sum;  
 
     return NULL;
 
