@@ -22,13 +22,13 @@ Solutions;
 /*
 Time  Comparison of Busy Wait and Mutex Lock
 Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
-1          3.594548                         3.564017       
-2          3.734485                         3.739902
-4          3.861749                         3.866743                                     
-8          4.411751                         4.333549
-16         4.667118                         4.381296                                       
-32         4.968579                         4.323378
-64         5.136693                         4.406304
+1          3.570267                         3.617244       
+2          1.872185                         1.869786
+4          0.976358                         0.975118                                     
+8          0.613545                         0.662650
+16         0.624775                         0.584278                                       
+32         0.608149                         0.576296
+64         0.633920                         0.574159
 */
 
 #include <stdio.h>
@@ -42,22 +42,24 @@ Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
 // int thread_count = NUM_THREADS;
 int thread_count;
 double sum = 0.0;
-int flag = 0;
-// pthread_mutex_t mutex;
+// int flag = 0;
+pthread_mutex_t mutex;
 
 void *estimate_pi(void* rank);
 
 int main(int argc, char* argv[]){
-    clock_t start, end;
-    double cpu_time_used;
+    // clock_t start, end;
+    //double cpu_time_used;
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     long thread;
     pthread_t* thread_handles;
-    // pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&mutex, NULL);
 
     thread_count = strtol(argv[1], NULL, 10);
 
-    start = clock();
+    //start = clock();
 
     thread_handles = malloc(thread_count * sizeof(pthread_t));
     for(thread = 0; thread < thread_count; thread++)
@@ -70,12 +72,15 @@ int main(int argc, char* argv[]){
     double pi = 4.0 * sum;
     printf("%f\n", pi);
 
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("CPU time used: %f seconds\n", cpu_time_used);
+    // end = clock();
+    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("CPU time used: %f seconds\n", cpu_time_used);
 
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("Wall time used: %f seconds\n", elapsed);
     free(thread_handles);
-    // pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&mutex);
     return 0;
 }
 
@@ -99,12 +104,12 @@ void *estimate_pi(void* rank){
         // flag = (flag + 1) % thread_count;
         // my_sum += factor / (2 * i + 1);
     }
-    while(flag != my_rank); // Busy Wait
-    sum += my_sum;
-    flag = (flag + 1) % thread_count;
-    //pthread_mutex_lock(&mutex);
+    // while(flag != my_rank); // Busy Wait
     // sum += my_sum;
-    //pthread_mutex_unlock(&mutex);
+    // flag = (flag + 1) % thread_count;
+    pthread_mutex_lock(&mutex);
+    sum += my_sum;
+    pthread_mutex_unlock(&mutex);
 
     return NULL;
 
