@@ -22,13 +22,13 @@ Solutions;
 /*
 Time  Comparison of Busy Wait and Mutex Lock
 Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
-1          5.675449                         3.564017       
-2          82.415129                        3.739902
-4          271.169137                       3.866743                                     
-8          2144.099351                      4.333549
-16                                          4.381296                                       
-32                                          4.323378
-64                                          4.406304
+1          3.594548                         3.564017       
+2          3.734485                         3.739902
+4          3.861749                         3.866743                                     
+8          4.411751                         4.333549
+16         4.667118                         4.381296                                       
+32         4.968579                         4.323378
+64         5.136693                         4.406304
 */
 
 #include <stdio.h>
@@ -94,12 +94,14 @@ void *estimate_pi(void* rank){
         factor = -1.0;
 
     for( i = my_first_i; i <= my_last_i; i++, factor = -factor){
-        while(flag != my_rank); // Busy Wait
+        // while(flag != my_rank); // Busy Wait
         my_sum += factor / (2 * i + 1);
-        flag = (flag + 1) % thread_count;
+        // flag = (flag + 1) % thread_count;
         // my_sum += factor / (2 * i + 1);
     }
-    
+    while(flag != my_rank); // Busy Wait
+    sum += my_sum;
+    flag = (flag + 1) % thread_count;
     //pthread_mutex_lock(&mutex);
     // sum += my_sum;
     //pthread_mutex_unlock(&mutex);
