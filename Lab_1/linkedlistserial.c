@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 struct list_node_s {
    int data;
@@ -79,9 +80,31 @@ void FreeList(struct list_node_s* head_p){
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    if(argc != 2){
+        fprintf(stderr, "Usage: %s <value>\n", argv[0]);
+        return 1;
+    }
+
+    int n = atoi(argv[1]);
+    if(n <= 0 || n > 65536){
+        fprintf(stderr, "n must be between 1 and 2^16\n");
+        return 1;
+    }
     struct list_node_s* head = NULL;
+
+    srand(time(NULL));
+    
+    int count = 0;
+    while(count < n){
+        int value = rand() % 65536;
+        if(Insert(value, &head)) /*Fills with n unique values*/
+            count++;
+    }
+
+    printf("List after filling with unique values: \n");
+    PrintList(head);
 
     Insert(5, &head);
     Insert(3, &head);
@@ -90,9 +113,6 @@ int main()
     printf("List after inserts: \n");
     PrintList(head);
 
-    Delete(3, &head);
-    printf("List after deleting 3: \n");
-    PrintList(head);
 
     Insert(4, &head);
     Insert(6, &head);
@@ -103,22 +123,20 @@ int main()
     printf("List after inserting 5: \n");
     PrintList(head);
 
+    int ans = Member(5, head);
+    printf("Is 5 a member of the list? %s\n", ans ? "Yes" : "No");
 
     Delete(5, &head);
-    printf("List after deleting 5: \n");
-    PrintList(head);
-    Delete(10, &head);
-    printf("List after deleting 10(Not in the list): \n");
-    PrintList(head);
     Delete(7, &head);
     Delete(4, &head);
+    printf("List after deletes: \n");
+    PrintList(head);
+    int ans2 = Member(4, head);
+    printf("Is 4 a member of the list? %s\n", ans2 ? "Yes" : "No");
     Delete(6, &head);
-    printf("List after deleting 7, 4, 6: \n");
-    PrintList(head);
     Delete(2, &head);
-    printf("List after deleting 2: \n");
+    printf("List after deleting: \n");
     PrintList(head);
-    Delete(2, &head);
     printf("Trying to delete from the empty list: \n");
     Delete(2, &head);
 
