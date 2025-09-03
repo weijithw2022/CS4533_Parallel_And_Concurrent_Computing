@@ -9,9 +9,10 @@ COMMON_OBJS = $(COMMON_SRCS:.c=.o)
 # Executables
 SERIAL = serial_linked_list
 PARALLEL = parallel_single_linked_list
+PARALLEL_RW = parallel_single_rw_linked_list
 
 # Default: build both
-all: $(SERIAL) $(PARALLEL)
+all: $(SERIAL) $(PARALLEL) $(PARALLEL_RW)
 
 # Serial executable
 $(SERIAL): serial_linked_list.o $(COMMON_OBJS)
@@ -19,6 +20,9 @@ $(SERIAL): serial_linked_list.o $(COMMON_OBJS)
 
 # Parallel executable
 $(PARALLEL): parallel_single_linked_list.o $(COMMON_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+$(PARALLEL_RW): parallel_single_rw_linked_list.o $(COMMON_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 # Generic build rule for .o files
