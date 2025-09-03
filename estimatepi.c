@@ -16,6 +16,7 @@ This is due to the way the threads are accessing and modifying the shared variab
 
 Solutions; 
 1. Use a flag to wait until the previous thread has finished updating the sum.
+2. Use mutex locks to ensure that only one thread can update the sum at a time.
 */
 
 #include <stdio.h>
@@ -23,21 +24,24 @@ Solutions;
 #include <pthread.h>
 
 #define NUM_ITER 1000000000
-#define NUM_THREADS 1
+#define NUM_THREADS 3
 
 int thread_count = NUM_THREADS;
 double sum = 0.0;
 int flag = 0;
+pthread_mutex_t mutex;
 
 void *estimate_pi(void* rank);
 
 int main(int argc, char* argv[]){
     long thread;
     pthread_t* thread_handles;
+    pthread_mutex_init(&mutex, NULL);
+
     thread_handles = malloc(thread_count * sizeof(pthread_t));
     for(thread = 0; thread < thread_count; thread++)
         pthread_create(&thread_handles[thread], NULL, estimate_pi, (void*) thread);
-    
+
     for(thread = 0; thread < thread_count; thread++)
         pthread_join(thread_handles[thread], NULL);
     
@@ -46,6 +50,7 @@ int main(int argc, char* argv[]){
     double pi = 4.0 * sum;
     printf("%f\n", pi);
 
+    pthread_mutex_destroy(&mutex);
     return 0;
 }
 
@@ -56,16 +61,19 @@ void *estimate_pi(void* rank){
     long long my_n = NUM_ITER / thread_count;
     long long my_first_i = my_rank * my_n;
     long long my_last_i = (my_rank + 1) * my_n - 1;
+    double my_sum = 0.0;
+
     if (my_first_i % 2 == 0)
         factor = 1.0;
     else
         factor = -1.0;
 
     for( i = my_first_i; i <= my_last_i; i++, factor = -factor){
-        while(flag != my_rank); // busy wait
-        sum += factor / (2 * i + 1);
-        flag = (flag + 1) % thread_count;
+        my_sum += factor / (2 * i + 1);
     }
+    pthread_mutex_lock(&mutex);
+    sum += my_sum;
+    pthread_mutex_unlock(&mutex);
 
     return NULL;
 
