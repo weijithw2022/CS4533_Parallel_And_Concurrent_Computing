@@ -82,16 +82,33 @@ void FreeList(struct list_node_s* head_p){
 
 int main(int argc, char* argv[])
 {
-    if(argc != 2){
-        fprintf(stderr, "Usage: %s <value>\n", argv[0]);
+    if(argc != 6){
+        fprintf(stderr, "Usage: %s <n> <m> <mMember> <mInsert> <mDelete>\n", argv[0]);
         return 1;
     }
 
     int n = atoi(argv[1]);
+    int m = atoi(argv[2]);
+    double mMember = atof(argv[3]);
+    double mInsert = atof(argv[4]);
+    double mDelete = atof(argv[5]);
+
     if(n <= 0 || n > 65536){
         fprintf(stderr, "n must be between 1 and 2^16\n");
         return 1;
     }
+
+    if(m<=0){
+        fprintf(stderr, "m must be greater than 0\n");
+        return 1;
+    }
+
+    if(mMember + mInsert + mDelete > 1.0001 || mMember + mInsert + mDelete < 0.9999){
+        fprintf(stderr, "Fraction sum must be equal to 1\n");
+        return 1;
+    }
+
+    
     struct list_node_s* head = NULL;
 
     srand(time(NULL));
@@ -106,39 +123,92 @@ int main(int argc, char* argv[])
     printf("List after filling with unique values: \n");
     PrintList(head);
 
-    Insert(5, &head);
-    Insert(3, &head);
-    Insert(7, &head);
+    int memberfns = 0, insertfns = 0, deletefns = 0;
+    int succesCount = 0; 
 
-    printf("List after inserts: \n");
+    while(succesCount < m){
+        double prob = (double) rand() / RAND_MAX;
+        int value = rand() % 65536;
+        if(prob < mMember){
+            Member(value, head);
+            memberfns++;
+            succesCount++;
+        }
+        else if(prob < mMember + mInsert){
+            if(Insert(value, &head)){
+                insertfns++;
+                succesCount++;
+            }
+        }
+        else{
+            if(Delete(value, &head)){
+                deletefns++;
+                succesCount++;
+            }
+            // Delete(value, &head);
+            // deletefns++;
+        }
+    }
+    
+    /* for(int i =0; i<m; i++){
+        double prob = (double) rand() / RAND_MAX;
+        int value = rand() % 65536;
+        if(prob < mMember){
+            Member(value, head);
+            memberfns++;
+        }
+        else if(prob < mMember + mInsert){
+            if(Insert(value, &head))
+                insertfns++;
+        }
+        else{
+            if(Delete(value, &head))
+                deletefns++;
+            // Delete(value, &head);
+            // deletefns++;
+        }
+    } */
+
+    printf("Number of member functions: %d\n", memberfns);
+    printf("Number of insert functions: %d\n", insertfns);
+    printf("Number of delete functions: %d\n", deletefns);
+
+    printf("List after all operations: \n");
     PrintList(head);
 
+    // Insert(5, &head);
+    // Insert(3, &head);
+    // Insert(7, &head);
 
-    Insert(4, &head);
-    Insert(6, &head);
-    Insert(2, &head);
-    printf("List after more inserts: \n");
-    PrintList(head);
-    Insert(5, &head);
-    printf("List after inserting 5: \n");
-    PrintList(head);
+    // printf("List after inserts: \n");
+    // PrintList(head);
 
-    int ans = Member(5, head);
-    printf("Is 5 a member of the list? %s\n", ans ? "Yes" : "No");
 
-    Delete(5, &head);
-    Delete(7, &head);
-    Delete(4, &head);
-    printf("List after deletes: \n");
-    PrintList(head);
-    int ans2 = Member(4, head);
-    printf("Is 4 a member of the list? %s\n", ans2 ? "Yes" : "No");
-    Delete(6, &head);
-    Delete(2, &head);
-    printf("List after deleting: \n");
-    PrintList(head);
-    printf("Trying to delete from the empty list: \n");
-    Delete(2, &head);
+    // Insert(4, &head);
+    // Insert(6, &head);
+    // Insert(2, &head);
+    // printf("List after more inserts: \n");
+    // PrintList(head);
+    // Insert(5, &head);
+    // printf("List after inserting 5: \n");
+    // PrintList(head);
+
+    // int ans = Member(5, head);
+    // printf("Is 5 a member of the list? %s\n", ans ? "Yes" : "No");
+
+    // Delete(5, &head);
+    // Delete(7, &head);
+    // Delete(4, &head);
+    // printf("List after deletes: \n");
+    // PrintList(head);
+    // int ans2 = Member(4, head);
+    // printf("Is 4 a member of the list? %s\n", ans2 ? "Yes" : "No");
+    // Delete(6, &head);
+    // Delete(2, &head);
+    // printf("List after deleting: \n");
+    // PrintList(head);
+    // printf("Trying to delete from the empty list: \n");
+    // Delete(2, &head);
 
     FreeList(head);
 
