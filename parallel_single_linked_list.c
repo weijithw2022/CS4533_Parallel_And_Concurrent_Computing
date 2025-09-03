@@ -93,8 +93,7 @@ int main(int argc, char* argv[]) {
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     double elapsed_time = (end.tv_sec - start.tv_sec)*1000 + (end.tv_nsec - start.tv_nsec) / 1e6;
-    printf("Execution time for %d operations with %d threads: %f milliseconds\n",
-           m, num_threads, elapsed_time);
+
 
     FILE* fp = fopen("execution_time_parallel_single_mutex.csv", "a");
     if (fp != NULL) {
