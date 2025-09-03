@@ -120,35 +120,81 @@ int main(int argc, char* argv[])
             count++;
     }
 
-    printf("List after filling with unique values: \n");
-    PrintList(head);
+    // printf("List after filling with unique values: \n");
+    // PrintList(head);
 
     int memberfns = 0, insertfns = 0, deletefns = 0;
-    int succesCount = 0; 
+    int totalmemberfns = m * mMember;
+    int totalinsertfns = m * mInsert;
+    int totaldeletefns = m * mDelete;   
 
-    while(succesCount < m){
-        double prob = (double) rand() / RAND_MAX;
+    int insertNewCount = 0;
+    int *insertNewValues  = malloc(totalinsertfns * sizeof(int));
+    while(insertNewCount < totalinsertfns){
         int value = rand() % 65536;
-        if(prob < mMember){
-            Member(value, head);
-            memberfns++;
-            succesCount++;
-        }
-        else if(prob < mMember + mInsert){
-            if(Insert(value, &head)){
-                insertfns++;
-                succesCount++;
-            }
-        }
-        else{
-            if(Delete(value, &head)){
-                deletefns++;
-                succesCount++;
-            }
-            // Delete(value, &head);
-            // deletefns++;
+        if(!Member(value, head)){
+            insertNewValues[insertNewCount++] = value;
         }
     }
+
+    int deleteNewCount = 0;
+    int *deleteNewValues = malloc(totaldeletefns * sizeof(int));
+    while(deleteNewCount < totaldeletefns){
+        int value = rand() % 65536;
+        if(Member(value, head)){
+            deleteNewValues[deleteNewCount++] = value;
+        }
+    }
+
+    char *ops = malloc(m * sizeof(char));
+    for (int i =0; i< totalmemberfns; i++) ops[i] = 'M';
+    for (int i =0; i< totalinsertfns; i++) ops[totalmemberfns + i] = 'I';
+    for (int i =0; i< totaldeletefns; i++) ops[totalmemberfns + totalinsertfns + i] = 'D';
+
+    for(int i=m-1; i>0; i--){
+        int j = rand() % (i+1);
+        char temp = ops[i];
+        ops[i] = ops[j];
+        ops[j] = temp;
+    }
+
+    for(int i=0;i<m;i++){
+        if(ops[i]=='M'){
+            int val = rand() % 65536;
+            Member(val, head);
+            memberfns++;
+        } else if(ops[i]=='I'){
+            int val = insertNewValues[insertfns++];
+            Insert(val, &head);
+        } else {
+            int val = deleteNewValues[deletefns++];
+            Delete(val, &head);
+        }
+    }
+
+    // while(succesCount < m){
+    //     double prob = (double) rand() / RAND_MAX;
+    //     int value = rand() % 65536;
+    //     if(prob < mMember){
+    //         Member(value, head);
+    //         memberfns++;
+    //         succesCount++;
+    //     }
+    //     else if(prob < mMember + mInsert){
+    //         if(Insert(value, &head)){
+    //             insertfns++;
+    //             succesCount++;
+    //         }
+    //     }
+    //     else{
+    //         if(Delete(value, &head)){
+    //             deletefns++;
+    //             succesCount++;
+    //         }
+    //         // Delete(value, &head);
+    //         // deletefns++;
+    //     }
+    // }
     
     /* for(int i =0; i<m; i++){
         double prob = (double) rand() / RAND_MAX;
@@ -211,6 +257,8 @@ int main(int argc, char* argv[])
     // Delete(2, &head);
 
     FreeList(head);
+    free(insertNewValues);
+    free(deleteNewValues);
 
     return 0;
 }
