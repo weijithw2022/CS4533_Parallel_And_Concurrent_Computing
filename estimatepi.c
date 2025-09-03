@@ -10,15 +10,24 @@ for (int i = 0; i < n; i++, factor = -factor) {
 double pi = 4.0 * sum;
 */
 
+/*
+You get different values when the number of threads is changed for the same iterations.
+This is due to the way the threads are accessing and modifying the shared variable 'sum'.
+
+Solutions; 
+1. Use a flag to wait until the previous thread has finished updating the sum.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 
 #define NUM_ITER 1000000000
-#define NUM_THREADS 2
+#define NUM_THREADS 1
 
 int thread_count = NUM_THREADS;
 double sum = 0.0;
+int flag = 0;
 
 void *estimate_pi(void* rank);
 
@@ -52,8 +61,11 @@ void *estimate_pi(void* rank){
     else
         factor = -1.0;
 
-    for( i = my_first_i; i <= my_last_i; i++, factor = -factor)
+    for( i = my_first_i; i <= my_last_i; i++, factor = -factor){
+        while(flag != my_rank); // busy wait
         sum += factor / (2 * i + 1);
+        flag = (flag + 1) % thread_count;
+    }
 
     return NULL;
 
