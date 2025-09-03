@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/weijithwimalasiri/Desktop/Sem_7/CS4533_Parallel_&_Concurrent_Computing/CS4533_Parallel_And_Concurrent_Computing",
+      "program": "/Users/weijithwimalasiri/Desktop/Sem_7/CS4533_Parallel_&_Concurrent_Computing/CS4533_Parallel_And_Concurrent_Computing/build/Debug/outDebug"
+    }
+  ]
+}
