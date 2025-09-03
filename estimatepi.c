@@ -42,8 +42,20 @@ Threads    Time(seconds)
 16         0.597984
 32         0.573637
 64         0.591330
+*/
 
+/*
+With different thread scheduling
+Threads    Time(seconds)
+1          3.578780
+2          1.854745
+4          0.972300
+8          0.588952
+16         0.578500 
+32         0.571548
+64         0.569181
 
+Acieves somewhat linear speedup
 */
 
 #include <stdio.h>
@@ -123,11 +135,24 @@ void *estimate_pi(void* rank){
     double *thread_sums = my_arg->thread_sums;
     double factor;
     long long i;
-    long long my_n = NUM_ITER / thread_count;
-    long long my_first_i = my_rank * my_n;
-    long long my_last_i = (my_rank + 1) * my_n - 1;
-    double my_sum = 0.0;
+    long long base_n = NUM_ITER / thread_count;
+    long long remainder = NUM_ITER % thread_count;
+    long long my_first_i, my_last_i, my_n;
+    // long long my_n = NUM_ITER / thread_count;
+    // long long my_first_i = my_rank * my_n;
+    // long long my_last_i = (my_rank + 1) * my_n - 1;
 
+    if (my_rank < remainder){
+        my_n = base_n + 1;
+        my_first_i = my_rank * my_n;
+    }
+    else{
+        my_n = base_n;
+        my_first_i = my_rank * my_n + remainder;
+    }
+    my_last_i = my_first_i + my_n - 1;
+
+    double my_sum = 0.0;
     if (my_first_i % 2 == 0)
         factor = 1.0;
     else
