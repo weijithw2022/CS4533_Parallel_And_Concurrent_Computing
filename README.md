@@ -2,6 +2,7 @@
 Here I get hands on experience with lecture material. 
 
 ## To run Lab 1 and to get different execution time
+```bash
 ./Lab_1/linkedlistserial n m mMember mInsert mDelete
 n = number of inital items in the linked list
 m = number of total Member, Insert and Delete operation
