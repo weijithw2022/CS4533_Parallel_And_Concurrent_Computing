@@ -19,24 +19,45 @@ Solutions;
 2. Use mutex locks to ensure that only one thread can update the sum at a time.
 */
 
+/*
+Time  Comparison of Busy Wait and Mutex Lock
+Threads    Time with Busy Wait (seconds)    Time with Mutex Lock (seconds)
+1          5.675449                         3.564017       
+2          82.415129                        3.739902
+4          271.169137                       3.866743                                     
+8          2144.099351                      4.333549
+16                                          4.381296                                       
+32                                          4.323378
+64                                          4.406304
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
 
 #define NUM_ITER 1000000000
-#define NUM_THREADS 3
+// #define NUM_THREADS 3
 
-int thread_count = NUM_THREADS;
+// int thread_count = NUM_THREADS;
+int thread_count;
 double sum = 0.0;
 int flag = 0;
-pthread_mutex_t mutex;
+// pthread_mutex_t mutex;
 
 void *estimate_pi(void* rank);
 
 int main(int argc, char* argv[]){
+    clock_t start, end;
+    double cpu_time_used;
+
     long thread;
     pthread_t* thread_handles;
-    pthread_mutex_init(&mutex, NULL);
+    // pthread_mutex_init(&mutex, NULL);
+
+    thread_count = strtol(argv[1], NULL, 10);
+
+    start = clock();
 
     thread_handles = malloc(thread_count * sizeof(pthread_t));
     for(thread = 0; thread < thread_count; thread++)
@@ -45,12 +66,16 @@ int main(int argc, char* argv[]){
     for(thread = 0; thread < thread_count; thread++)
         pthread_join(thread_handles[thread], NULL);
     
-    free(thread_handles);
 
     double pi = 4.0 * sum;
     printf("%f\n", pi);
 
-    pthread_mutex_destroy(&mutex);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("CPU time used: %f seconds\n", cpu_time_used);
+
+    free(thread_handles);
+    // pthread_mutex_destroy(&mutex);
     return 0;
 }
 
@@ -69,11 +94,15 @@ void *estimate_pi(void* rank){
         factor = -1.0;
 
     for( i = my_first_i; i <= my_last_i; i++, factor = -factor){
+        while(flag != my_rank); // Busy Wait
         my_sum += factor / (2 * i + 1);
+        flag = (flag + 1) % thread_count;
+        // my_sum += factor / (2 * i + 1);
     }
-    pthread_mutex_lock(&mutex);
-    sum += my_sum;
-    pthread_mutex_unlock(&mutex);
+    
+    //pthread_mutex_lock(&mutex);
+    // sum += my_sum;
+    //pthread_mutex_unlock(&mutex);
 
     return NULL;
 
