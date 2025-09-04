@@ -17,6 +17,9 @@ Lab_1/Weijith_Implementation/Tests/linkedlistmutexlock2
 Lab_1/Weijith_Implementation/Tests/linkedlistreadwritelock2
 Lab_1/Weijith_Implementation/Tests/linkedmutexlock2
 Lab_1/Weijith_Implementation/Tests/linkedreadwritelock2
+basic/basics
+basic/estimatepi
+basic/matrixmul
 
 # Ignore common output files
 *.out
