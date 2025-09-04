@@ -7,3 +7,23 @@ share/
 *.cfg
 *.csv
 *.png
+*.dSYM/
+# Ignore executables (no extension)
+Lab_1/Weijith_Implementation/Tests/linkedlistserial
+Lab_1/Weijith_Implementation/Tests/linkedlistmutexlock
+Lab_1/Weijith_Implementation/Tests/linkedlistreadwritelock
+Lab_1/Weijith_Implementation/Tests/linkedlistserial2
+Lab_1/Weijith_Implementation/Tests/linkedlistmutexlock2
+Lab_1/Weijith_Implementation/Tests/linkedlistreadwritelock2
+Lab_1/Weijith_Implementation/Tests/linkedmutexlock2
+Lab_1/Weijith_Implementation/Tests/linkedreadwritelock2
+
+# Ignore common output files
+*.out
+*.exe
+*.a
+*.so
+
+# Ignore build and debug folders
+build/
+Debug   /
