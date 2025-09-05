@@ -1,0 +1,32 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+bin/
+include/
+lib/
+share/
+*.o
+*.cfg
+*.csv
+*.png
+*.dSYM/
+# Ignore executables (no extension)
+Lab_1/Weijith_Implementation/Tests/linkedlistserial
+Lab_1/Weijith_Implementation/Tests/linkedlistmutexlock
+Lab_1/Weijith_Implementation/Tests/linkedlistreadwritelock
+Lab_1/Weijith_Implementation/Tests/linkedlistserial2
+Lab_1/Weijith_Implementation/Tests/linkedlistmutexlock2
+Lab_1/Weijith_Implementation/Tests/linkedlistreadwritelock2
+Lab_1/Weijith_Implementation/Tests/linkedmutexlock2
+Lab_1/Weijith_Implementation/Tests/linkedreadwritelock2
+basic/basics
+basic/estimatepi
+basic/matrixmul
+
+# Ignore common output files
+*.out
+*.exe
+*.a
+*.so
+
+# Ignore build and debug folders
+build/
+Debug   /
